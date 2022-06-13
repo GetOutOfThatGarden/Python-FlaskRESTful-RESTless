@@ -1,75 +1,86 @@
 # Using flask to make an API
-# This is the first thing I'm doing with python, my python is at beginner level as I follow this code.
+# This is the first thing I'm doing with python, alongside the other code in this folder (FlaskRESTless.py). My python is at beginner level as I follow this code.
 # I'm following this tutorial: https://chukslord.hashnode.dev/writing-apis-with-python-the-flask-restful-way-1
 
-# The following code is for the flaskRESTLESSS way from the tutorial.
+# The following code is for the flaskRESTLfull way from the tutorial.
 
-# import necessaty files and functions
-from flask import Flask, jsonify, request
+# Note that any comments starting with two #s are from the tutorial. Single #s are my own comments.
 
-# create a flask app
-# not sure what they mean by app here. Will this be called later in the code?
+from flask import Flask
+# These are the libraries being imported. I don't know what they mean yet, but I'll take a guess:
+# 'reqparse' is for requiring an argument to be parsed.
+# 'abort' is to abort a request
+# 'API' is some thing got to do with the API.
+# 'Resourse', I've no idea what this is yet.
+from flask_restful import reqparse, abort, Api, Resource
+
+#  I don't know why there is underscores on either side of 'name'. Is this a standard naming convention in py?
 app = Flask(__name__)
+api = Api(app)
 
-# Below is the todo list from the guide. I guess is it some sort of array? Or is it creating a list of objects?
 TODOS = {
     'todo1': {'task': 'sleep'},
     'todo2': {'task': 'eat'},
-    'todo3': {'task': 'code'},
-    'todo4': {'task': 'repeat'}
+    'todo3': {'task': 'code!'},
+    'todo4': {'task': 'repeat'},
 }
-# I'm still confused about the struture of the above code. Are those four objects I just created?
-
-# I don't know what 'def' is.
-# Does it mean it is defining a function?
-# Possibly, maybe it's called abort_if_todo_doesnt_exist with a argument of todo_id being passed into it.
-# but todo_id has not been defined yet, will it show up later in the code?
 
 
 def abort_if_todo_doesnt_exist(todo_id):
     if todo_id not in TODOS:
-        message = "Todo {} doesn't exist".format(todo_id)
-        # I'm guessing the below code uses a function called jsonify to create a json object.
-        return jsonify({'message': message})
-
-# @app.route('/todos/<todo_id>', methods=['GET','DELETE','PUT'])
+        abort(404, message="Todo {} doesn't exist".format(todo_id))
 
 
-def todo(todo_id):
-    # I think the below code is if the api request was a GET request, as opposed to a PUT or DELETE request.
-    if (request.method == 'GET'):
+parser = reqparse.RequestParser()
+parser.add_argument('task')
+
+# displays a single todo item and lets you delete a todo item
+# What is the 'resource' entered as an argument into the function?
+
+
+class Todo(Resource):
+    # What is the 'self' for?
+    def get(self, todo_id):
         abort_if_todo_doesnt_exist(todo_id)
-        return jsonify({'data': TODOS[todo_id]})
+        return TODOS[todo_id]
 
-    elif (request.method == 'DELETE'):
+    def delete(self, todo_id):
         abort_if_todo_doesnt_exist(todo_id)
-        # I'm guessing the below code is deleting the todo from the TODOS list.
         del TODOS[todo_id]
-        return jsonify({'message': 'You have deleted the todo item'}), 204
+        return 'You have deleted the todo item', 204
 
-    elif (request.method == 'PUT'):
-        abort_if_todo_doesnt_exist(todo_id)
-       # Right now, I dont know what args is. Is it a variable?
-       args = parser.parse_args()
-       task = {'task': args['task']}
-       TODOS[todo_id] = task
-       return jsonify({'task':task}), 201
-
-# @app.route('/todos', methods=['GET','POST'])
-def todo_list():
-    if (request.method == 'GET'):
-        return jsonify({'data': TODOS})
-
-    elif (request.method == 'POST'):
+    # Seems to be defining the route for the PUT request.
+    def put(self, todo_id):
+        # I need to figure out what
         args = parser.parse_args()
-        #  Theres a few things in the below line that I don't understand. Like 'max', keys, and lstrip. I presume the '+ 1' at the end is incredmenting the number. Maybe this code is to give each new post a label of todo1, todo2, todo3, etc.
+        task = {'task': args['task']}
+        TODOS[todo_id] = task
+        return task, 201
+
+
+class TodoList(Resource):
+    def get(self):
+        return TODOS
+
+    # Still not sure what 'self' is.
+    def post(self):
+        args = parser.parse_args()
+        # Here we are creating a new todo item I think. But I still don't know what the methods are (max(), .keys(), .lstrip())
         todo_id = int(max(TODOS.keys()).lstrip('todo')) + 1
-        # Same with the below code. I dont know what the '%i' is. And why is there another % in the middle of the line? 
+        # Just like the RESTless coding, I don't know what the % symbols arehere for.
         todo_id = 'todo%i' % todo_id
         TODOS[todo_id] = {'task': args['task']}
-        return jsonify({'data': TODOS[todo_id]}), 201
+        return TODOS[todo_id], 201
 
-# driver function
+# Setup the api resource routing here
+# The author wrote the original comment above. Maybe this is associated with the 'resource' import from above.
+
+
+# Is the below line creating a list?
+api.add_resource(TodoList, '/todos')
+# And maybe the below line is creating a single todo item?
+api.add_resource(Todo, '/todos/<todo_id>')
+
+# Again, just like the code from the RESTless tutorial, I've no idea what this is for. Is it the code to make the program run? What does 'debug=true' mean?
 if __name__ == '__main__':
-    # No idea what's going on here.
     app.run(debug=True)
