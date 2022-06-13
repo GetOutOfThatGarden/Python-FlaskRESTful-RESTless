@@ -67,7 +67,7 @@ class TodoList(Resource):
         args = parser.parse_args()
         # Here we are creating a new todo item I think. But I still don't know what the methods are (max(), .keys(), .lstrip())
         todo_id = int(max(TODOS.keys()).lstrip('todo')) + 1
-        # Just like the RESTless coding, I don't know what the % symbols arehere for.
+        # Ok I figured out what the %i is, it is a placeholder that will be replaced with what comes after the second %. But what is the 'i' for? I learned what %s and %d is, but not %i yet.
         todo_id = 'todo%i' % todo_id
         TODOS[todo_id] = {'task': args['task']}
         return TODOS[todo_id], 201

@@ -4,6 +4,8 @@
 
 # The following code is for the flaskRESTLESSS way from the tutorial.
 
+# Note that any comments starting with two #s are from the tutorial. Single #s are my own comments.
+
 # import necessaty files and functions
 from flask import Flask, jsonify, request
 
@@ -64,7 +66,8 @@ def todo_list():
         args = parser.parse_args()
         #  Theres a few things in the below line that I don't understand. Like 'max', keys, and lstrip. I presume the '+ 1' at the end is incredmenting the number. Maybe this code is to give each new post a label of todo1, todo2, todo3, etc.
         todo_id = int(max(TODOS.keys()).lstrip('todo')) + 1
-        # Same with the below code. I dont know what the '%i' is. And why is there another % in the middle of the line? 
+        # Ok I figured out what the %i is, it is a placeholder that will be replaced with what comes after the second %. But what is the 'i' for? I learned what %s and %d is, but not %i yet.
+        
         todo_id = 'todo%i' % todo_id
         TODOS[todo_id] = {'task': args['task']}
         return jsonify({'data': TODOS[todo_id]}), 201
